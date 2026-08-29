@@ -1,0 +1,57 @@
+# =============================================================================
+# ZentraX AI — backend/requirements.txt
+#
+# Pinned to specific versions for reproducible builds. Verify these against
+# current releases (`pip list --outdated`) on a regular cadence — pinning
+# protects against surprise breakage, not against bitrot.
+#
+# Install:   pip install -r requirements.txt
+# Upgrade:   pip install --upgrade -r requirements.txt  (then re-pin & retest)
+# =============================================================================
+
+# --- Web framework / ASGI server ---------------------------------------------
+fastapi==0.141.1
+uvicorn[standard]==0.35.0        # [standard] pulls in uvloop + httptools for prod perf
+starlette==0.48.0                # keep in lockstep with the fastapi release notes
+
+# --- Data validation / settings ----------------------------------------------
+pydantic==2.11.7
+pydantic-settings==2.6.1         # typed env-var / .env config loading
+
+# --- Database ------------------------------------------------------------------
+sqlalchemy==2.0.36               # 2.0's async ORM (AsyncSession) — required for FastAPI concurrency
+alembic==1.14.0                  # schema migrations
+asyncpg==0.30.0                  # async PostgreSQL driver
+# psycopg[binary]==3.2.3         # alternative sync/async driver — uncomment if preferred over asyncpg
+
+# --- Auth / security -----------------------------------------------------------
+passlib[argon2]==1.7.4           # password hashing (Argon2id)
+python-jose[cryptography]==3.3.0 # JWT encode/decode
+python-multipart==0.0.17         # required by FastAPI for form/file uploads (e.g. login forms)
+
+# --- HTTP client (for outbound calls to AI providers / external APIs) --------
+httpx==0.28.1
+
+# --- Caching / rate limiting / session backing --------------------------------
+redis==5.2.1                     # session store, rate limiting, task queues
+slowapi==0.1.9                   # Redis-backed rate limiting middleware for FastAPI
+
+# --- Background tasks (optional, for anything beyond FastAPI's BackgroundTasks) --
+celery==5.4.0
+# flower==2.0.1                  # Celery monitoring dashboard — dev/staging only
+
+# --- Environment / config -------------------------------------------------------
+python-dotenv==1.0.1
+
+# --- Logging / observability -----------------------------------------------------
+structlog==24.4.0                 # structured logging (pairs well with metadata-only log style)
+sentry-sdk[fastapi]==2.19.2       # error tracking — omit if not using Sentry
+
+# --- CORS / security headers (Starlette ships CORS middleware; listed for clarity) --
+# (No separate package needed — fastapi.middleware.cors.CORSMiddleware is built in.)
+
+# =============================================================================
+# Development / test-only dependencies belong in a separate requirements-dev.txt
+# (pytest, pytest-asyncio, httpx test client, ruff, mypy, faker, etc.) so
+# production images don't ship test tooling. Ask if you'd like that file too.
+# =============================================================================

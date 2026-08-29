@@ -1,0 +1,89 @@
+version: "3.9"
+
+# ZentraX AI — production docker-compose
+# Usage:
+#   docker compose -f infrastructure/docker-compose.yml --env-file infrastructure/.env up -d --build
+#
+# Secrets/config are NOT hardcoded here — they're pulled from a local .env file
+# (git-ignored) or, in real production, from your orchestrator's secret store
+# (Docker Swarm secrets, Kubernetes Secrets, AWS SSM/Secrets Manager, etc.).
+# See infrastructure/.env.example for the variables this file expects.
+
+services:
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+      args:
+        NODE_ENV: production
+    image: zentrax-frontend:${IMAGE_TAG:-latest}
+    container_name: zentrax-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      # Public URL the browser uses to reach the backend (safe to expose)
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+    env_file:
+      - .env
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - zentrax-net
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    image: zentrax-backend:${IMAGE_TAG:-latest}
+    container_name: zentrax-backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      ENV: production
+      PORT: 8000
+    # Secrets (DB URL, API keys, JWT secret, etc.) live only in this file on disk,
+    # never in this compose file or version control.
+    env_file:
+      - .env
+    networks:
+      - zentrax-net
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0) if urllib.request.urlopen('http://localhost:8000/health').status==200 else sys.exit(1)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  zentrax-net:
+    driver: bridge
