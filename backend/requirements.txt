@@ -21,7 +21,7 @@ pydantic-settings==2.6.1         # typed env-var / .env config loading
 # --- Database ------------------------------------------------------------------
 sqlalchemy==2.0.36               # 2.0's async ORM (AsyncSession) — required for FastAPI concurrency
 alembic==1.14.0                  # schema migrations
-asyncpg==0.30.0                  # async PostgreSQL driver
+asyncpg                # async PostgreSQL driver
 # psycopg[binary]==3.2.3         # alternative sync/async driver — uncomment if preferred over asyncpg
 
 # --- Auth / security -----------------------------------------------------------
