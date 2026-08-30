@@ -39,8 +39,8 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Application code, owned by the non-root user that will run it.
-COPY --chown=app:app . .
-
+COPY --chown=app:app app /app/app
+ 
 USER app
 
 EXPOSE 8000
@@ -53,5 +53,5 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
 # Gunicorn with the Uvicorn worker class so you get multiple worker
 # processes and proper process management:
 #   CMD ["gunicorn", "app.main:app", "-k", "uvicorn.workers.UvicornWorker", \
-#        "--bind", "0.0.0.0:8000", "--workers", "4"]
+#        "--bind", "0.0.0.0:8000", "--workers", "4"]CMD ["gunicorn", "app.main:app", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8000"]
 CMD ["gunicorn", "app.main:app", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8000"]
