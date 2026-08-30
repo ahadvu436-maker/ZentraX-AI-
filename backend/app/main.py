@@ -22,8 +22,15 @@ from __future__ import annotations
 import os
 import sys
 
-# সিস্টেম পাথ ফিক্স করার জন্য
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+# রেন্ডার সার্ভারের জন্য সঠিক পাথ অ্যাডজাস্টমেন্ট
+current_dir = os.path.dirname(os.path.abspath(__file__))
+app_dir = os.path.dirname(current_dir)
+backend_dir = os.path.dirname(app_dir)
+
+if backend_dir not in sys.path:
+    sys.path.insert(0, backend_dir)
+if current_dir not in sys.path:
+    sys.path.insert(0, current_dir)
 
 import logging
 from contextlib import asynccontextmanager
@@ -38,6 +45,7 @@ from app.api.routes import chat, toolkit, user
 logger = logging.getLogger("zentrax.main")
 
 settings = get_settings()
+
 
 # -----------------------------------------------------------------------------
 # Lifespan: startup / shutdown of shared resources
