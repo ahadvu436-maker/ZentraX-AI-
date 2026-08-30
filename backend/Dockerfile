@@ -39,9 +39,9 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Application code, owned by the non-root user that will run it.
-COPY --chown=app:app app /app/app
- 
-USER app
+COPY --chown=app:app . .
+
+ USER app
 
 EXPOSE 8000
 
