@@ -19,6 +19,12 @@ Run in production (see infrastructure/docker-compose.yml):
 
 from __future__ import annotations
 
+import os
+import sys
+
+# সিস্টেম পাথ ফিক্স করার জন্য
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
 import logging
 from contextlib import asynccontextmanager
 
@@ -32,7 +38,6 @@ from app.api.routes import chat, toolkit, user
 logger = logging.getLogger("zentrax.main")
 
 settings = get_settings()
-
 
 # -----------------------------------------------------------------------------
 # Lifespan: startup / shutdown of shared resources
