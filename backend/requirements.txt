@@ -16,4 +16,4 @@ celery
 python-dotenv
 structlog
 sentry-sdk[fastapi]
-
+gunicorn
