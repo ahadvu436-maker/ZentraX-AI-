@@ -16,7 +16,7 @@ starlette==0.48.0                # keep in lockstep with the fastapi release not
 
 # --- Data validation / settings ----------------------------------------------
 pydantic==2.11.7
-pydantic-settings==2.6.1         # typed env-var / .env config loading
+pydantic-core==2.27.2       # typed env-var / .env config loading
 
 # --- Database ------------------------------------------------------------------
 sqlalchemy==2.0.36               # 2.0's async ORM (AsyncSession) — required for FastAPI concurrency
