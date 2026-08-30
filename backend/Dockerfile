@@ -35,11 +35,11 @@ RUN apt-get update \
 # Copy only the requirements file first so this layer is cached across
 # builds until dependencies actually change — source edits alone won't
 # force a full pip reinstall.
-COPY requirements.txt .
+COPY . /app
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Application code, owned by the non-root user that will run it.
-COPY --chown=app:app . .
+COPY . /app
 
  USER app
 
