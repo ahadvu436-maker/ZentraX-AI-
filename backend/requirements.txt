@@ -55,3 +55,4 @@ sentry-sdk[fastapi]==2.19.2       # error tracking — omit if not using Sentry
 # (pytest, pytest-asyncio, httpx test client, ruff, mypy, faker, etc.) so
 # production images don't ship test tooling. Ask if you'd like that file too.
 # =============================================================================
+asyncpg==0.31.0
