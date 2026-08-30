@@ -39,7 +39,6 @@ COPY . /app
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Application code, owned by the non-root user that will run it.
-COPY . /app
 
  USER app
 
