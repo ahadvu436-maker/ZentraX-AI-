@@ -1,62 +1,45 @@
-# ZentraX AI
-
-**A privacy-first, full-stack AI platform.**
+ZentraX AI
+A privacy-first, full-stack AI platform.
 
 ZentraX AI pairs a modern Next.js frontend with an async Python (FastAPI) backend to deliver AI-powered conversations and tooling — without compromising on user privacy, security, or performance.
 
----
-
-## Table of Contents
-
-- [Overview](#overview)
-- [Key Features](#key-features)
-- [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
-- [Getting Started with Docker (Recommended)](#getting-started-with-docker-recommended)
-- [Local Development Setup](#local-development-setup)
-- [Environment Variables](#environment-variables)
-- [Contributing](#contributing)
-- [License](#license)
-
----
-
-## Overview
-
+Table of Contents
+Overview
+Key Features
+Tech Stack
+Project Structure
+Getting Started with Docker (Recommended)
+Local Development Setup
+Environment Variables
+Contributing
+License
+Overview
 ZentraX AI is built on a simple premise: powerful AI tooling shouldn't come at the cost of user privacy. Every service in the backend — chat, auth, and the extensible tool system — is designed around data minimization, secure-by-default practices, and clear boundaries between components.
 
 The platform ships as two independently deployable services (frontend + backend), orchestrated together via Docker Compose behind an Nginx reverse proxy for production.
 
----
-
-## Key Features
-
-- 🔒 **Privacy-First by Design** — opaque user references instead of raw PII in logs, metadata-only logging (no message content ever logged), configurable session/data retention, and GDPR-style account erasure built into the user service.
-- 🎨 **Modern Dark/Gold UI** — a distinctive, polished interface built with Next.js, designed for clarity and focus during long AI sessions.
-- 🧩 **Modular Architecture** — the backend is organized into clean, independently testable services (`chat_service`, `user_service`, `toolkit_service`) connected through explicit interfaces rather than tight coupling.
-- ⚙️ **Extensible Tool System** — a pluggable registry lets new AI-callable tools and integrations be added without touching core conversation logic, complete with permissioning, timeouts, and schema validation.
-- 🔐 **Secure Authentication** — Argon2id password hashing, short-lived JWT access tokens with refresh rotation, and timing-safe login to prevent account enumeration.
-- ⚡ **Fully Asynchronous** — built end-to-end on `async`/`await`, from API routes down to database access and outbound provider calls.
-- 🐳 **Container-Native** — production-ready Docker Compose setup with health checks, restart policies, and an Nginx reverse proxy with TLS termination.
-
----
-
-## Tech Stack
-
-| Layer | Technology |
-|---|---|
-| Frontend | Next.js (React), TypeScript |
-| Backend | Python, FastAPI, async/await |
-| Database | PostgreSQL via SQLAlchemy 2.0 (async) |
-| Auth | Argon2id, JWT (python-jose) |
-| Reverse Proxy | Nginx (TLS termination, routing, rate limiting) |
-| Containerization | Docker, Docker Compose |
-| Caching / Sessions | Redis |
-
----
-
-## Project Structure
-
-```
+Key Features
+🔒 Privacy-First by Design — opaque user references instead of raw PII in logs, metadata-only logging (no message content ever logged), configurable session/data retention, and GDPR-style account erasure built into the user service.
+🎨 Modern Dark/Gold UI — a distinctive, polished interface built with Next.js, designed for clarity and focus during long AI sessions.
+🧩 Modular Architecture — the backend is organized into clean, independently testable services (chat_service, user_service, toolkit_service) connected through explicit interfaces rather than tight coupling.
+⚙️ Extensible Tool System — a pluggable registry lets new AI-callable tools and integrations be added without touching core conversation logic, complete with permissioning, timeouts, and schema validation.
+🔐 Secure Authentication — Argon2id password hashing, short-lived JWT access tokens with refresh rotation, and timing-safe login to prevent account enumeration.
+⚡ Fully Asynchronous — built end-to-end on async/await, from API routes down to database access and outbound provider calls.
+🐳 Container-Native — production-ready Docker Compose setup with health checks, restart policies, and an Nginx reverse proxy with TLS termination.
+🛡️ Sentinel Core — centralized runtime monitoring and safeguard logic in backend/app/core/sentinel_core.py.
+✅ Compliance Guard — policy and compliance enforcement layer in backend/app/core/compliance_guard.py.
+🧬 Feature Generator — automated feature derivation/generation utilities in backend/app/core/feature_generator.py.
+🤝 External Agent Integration — a dedicated service for coordinating with external agents in backend/app/services/external_agent.py.
+Tech Stack
+Layer	Technology
+Frontend	Next.js (React), TypeScript
+Backend	Python, FastAPI, async/await
+Database	PostgreSQL via SQLAlchemy 2.0 (async)
+Auth	Argon2id, JWT (python-jose)
+Reverse Proxy	Nginx (TLS termination, routing, rate limiting)
+Containerization	Docker, Docker Compose
+Caching / Sessions	Redis
+Project Structure
 zentrax-ai/
 ├── frontend/                      # Next.js application
 │   ├── app/                       # App router pages & layouts
@@ -71,10 +54,14 @@ zentrax-ai/
 │   │   ├── services/               # Core business logic
 │   │   │   ├── chat_service.py     # Conversation orchestration & AI provider dispatch
 │   │   │   ├── user_service.py     # Registration, auth, profile management
-│   │   │   └── toolkit_service.py  # Modular AI tool registry & execution
+│   │   │   ├── toolkit_service.py  # Modular AI tool registry & execution
+│   │   │   └── external_agent.py   # Coordination with external agents
 │   │   ├── repositories/          # Database access layer (SQLAlchemy)
 │   │   ├── models/                 # SQLAlchemy models / Pydantic schemas
 │   │   └── core/                   # Config, security helpers, dependencies
+│   │       ├── sentinel_core.py     # Runtime monitoring & safeguard logic
+│   │       ├── compliance_guard.py  # Policy & compliance enforcement
+│   │       └── feature_generator.py # Automated feature derivation/generation
 │   ├── requirements.txt
 │   └── Dockerfile
 │
@@ -87,83 +74,49 @@ zentrax-ai/
 │
 ├── .gitignore
 └── README.md
-```
-
----
-
-## Getting Started with Docker (Recommended)
-
+Getting Started with Docker (Recommended)
 The fastest way to run the full stack is with Docker Compose — no local Node.js or Python setup required.
 
-### Prerequisites
-
-- [Docker](https://docs.docker.com/get-docker/) (20.10+)
-- [Docker Compose](https://docs.docker.com/compose/install/) (v2, bundled with modern Docker installs)
-
-### 1. Clone the repository
-
-```bash
+Prerequisites
+Docker (20.10+)
+Docker Compose (v2, bundled with modern Docker installs)
+1. Clone the repository
 git clone https://github.com/your-org/zentrax-ai.git
 cd zentrax-ai
-```
+2. Configure environment variables
+Copy the example env file and fill in real values (see Environment Variables below):
 
-### 2. Configure environment variables
-
-Copy the example env file and fill in real values (see [Environment Variables](#environment-variables) below):
-
-```bash
 cp infrastructure/.env.example infrastructure/.env
-```
+⚠️ infrastructure/.env contains secrets — it's git-ignored by default. Never commit real credentials.
 
-> ⚠️ `infrastructure/.env` contains secrets — it's git-ignored by default. Never commit real credentials.
-
-### 3. Build and start the stack
-
-```bash
+3. Build and start the stack
 cd infrastructure
 docker compose up --build
-```
-
 This will:
-- Build the frontend image and serve it on **port 3000**
-- Build the backend image and serve it on **port 8000**
-- Wire both services together on an isolated Docker network
-- Apply restart policies so containers recover automatically from crashes
 
-### 4. Verify it's running
-
-- Frontend: [http://localhost:3000](http://localhost:3000)
-- Backend health check: [http://localhost:8000/health](http://localhost:8000/health)
-- Backend API docs (Swagger UI): [http://localhost:8000/docs](http://localhost:8000/docs)
-
-### 5. Stop the stack
-
-```bash
+Build the frontend image and serve it on port 3000
+Build the backend image and serve it on port 8000
+Wire both services together on an isolated Docker network
+Apply restart policies so containers recover automatically from crashes
+4. Verify it's running
+Frontend: http://localhost:3000
+Backend health check: http://localhost:8000/health
+Backend API docs (Swagger UI): http://localhost:8000/docs
+5. Stop the stack
 docker compose down
-```
+Production deployment
+For a production rollout behind the included Nginx reverse proxy (TLS termination, security headers, rate limiting), see infrastructure/deployment/nginx.conf and run the deploy script:
 
-### Production deployment
-
-For a production rollout behind the included Nginx reverse proxy (TLS termination, security headers, rate limiting), see `infrastructure/deployment/nginx.conf` and run the deploy script:
-
-```bash
 cd infrastructure/deployment
 ./deploy.sh
-```
-
 The script builds fresh images, brings the stack up, waits for both services to pass health checks, and automatically rolls back if they don't.
 
----
-
-## Local Development Setup
-
+Local Development Setup
 For active development, running the frontend and backend natively (outside Docker) gives you faster reload cycles.
 
-### Backend (FastAPI)
+Backend (FastAPI)
+Prerequisites: Python 3.12+
 
-**Prerequisites:** Python 3.12+
-
-```bash
 cd backend
 
 # Create and activate a virtual environment
@@ -181,15 +134,11 @@ alembic upgrade head
 
 # Start the dev server with hot reload
 uvicorn app.main:app --reload --port 8000
-```
+The API will be available at http://localhost:8000, with interactive docs at http://localhost:8000/docs.
 
-The API will be available at `http://localhost:8000`, with interactive docs at `http://localhost:8000/docs`.
+Frontend (Next.js)
+Prerequisites: Node.js 20+
 
-### Frontend (Next.js)
-
-**Prerequisites:** Node.js 20+
-
-```bash
 cd frontend
 
 # Install dependencies
@@ -200,37 +149,23 @@ cp .env.example .env.local
 
 # Start the dev server
 npm run dev
-```
+The app will be available at http://localhost:3000, automatically proxying API requests to your local backend.
 
-The app will be available at `http://localhost:3000`, automatically proxying API requests to your local backend.
+Running both together
+Open two terminal sessions — one for backend/ (uvicorn ... --reload) and one for frontend/ (npm run dev) — and both will hot-reload independently as you work.
 
-### Running both together
+Environment Variables
+Key variables required by the backend (see infrastructure/.env.example for the full list):
 
-Open two terminal sessions — one for `backend/` (`uvicorn ... --reload`) and one for `frontend/` (`npm run dev`) — and both will hot-reload independently as you work.
+Variable	Description
+DATABASE_URL	PostgreSQL connection string
+JWT_SECRET	Secret used to sign auth tokens (min. 32 characters, keep private)
+NEXT_PUBLIC_API_URL	Public URL the frontend uses to reach the backend
+IMAGE_TAG	Docker image tag used by Compose (defaults to latest)
+All secrets should be sourced from a secrets manager (AWS Secrets Manager, Vault, etc.) in real production deployments — .env files are for local/dev convenience only.
 
----
+Contributing
+Contributions are welcome. Please open an issue to discuss significant changes before submitting a pull request, and ensure new backend services follow the existing pattern of dependency-injected interfaces (e.g. SessionStore, UserRepository, ToolRegistry) so components stay testable and swappable.
 
-## Environment Variables
-
-Key variables required by the backend (see `infrastructure/.env.example` for the full list):
-
-| Variable | Description |
-|---|---|
-| `DATABASE_URL` | PostgreSQL connection string |
-| `JWT_SECRET` | Secret used to sign auth tokens (min. 32 characters, keep private) |
-| `NEXT_PUBLIC_API_URL` | Public URL the frontend uses to reach the backend |
-| `IMAGE_TAG` | Docker image tag used by Compose (defaults to `latest`) |
-
-> All secrets should be sourced from a secrets manager (AWS Secrets Manager, Vault, etc.) in real production deployments — `.env` files are for local/dev convenience only.
-
----
-
-## Contributing
-
-Contributions are welcome. Please open an issue to discuss significant changes before submitting a pull request, and ensure new backend services follow the existing pattern of dependency-injected interfaces (e.g. `SessionStore`, `UserRepository`, `ToolRegistry`) so components stay testable and swappable.
-
----
-
-## License
-
-*Add your chosen license here (e.g. MIT, Apache 2.0) — none is specified yet.*
+License
+Add your chosen license here (e.g. MIT, Apache 2.0) — none is specified yet.
