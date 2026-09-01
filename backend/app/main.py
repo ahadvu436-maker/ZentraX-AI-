@@ -9,6 +9,9 @@ Responsibilities:
     - Wire up domain routers (chat, user, toolkit) under a versioned prefix.
     - Expose a lightweight health check endpoint for load balancers / Docker.
     - Manage startup/shutdown of shared resources (DB engine, etc.) via lifespan.
+    - Register SentinelCore middleware for request monitoring / self-healing.
+    - Enforce ComplianceGuard checks for GDPR/CCPA privacy compliance.
+    - Initialize FeatureGenerator and ExternalAgent services on app.state.
 
 Run locally:
     uvicorn app.main:app --reload --port 8000
@@ -42,6 +45,12 @@ from fastapi.responses import JSONResponse
 from app.core.config import get_settings
 from app.api.routes import chat, toolkit, user
 
+# New core modules
+from app.core.sentinel_core import SentinelCoreMiddleware
+from app.core.compliance_guard import ComplianceGuardMiddleware
+from app.core.feature_generator import FeatureGenerator
+from app.services.external_agent import ExternalAgentService
+
 logger = logging.getLogger("zentrax.main")
 
 settings = get_settings()
@@ -62,11 +71,26 @@ async def lifespan(app: FastAPI):
     # from app.core.database import engine
     # app.state.db_engine = engine
 
+    # FeatureGenerator: derives/generates feature flags or model-facing
+    # features. Initialized once and shared via app.state rather than
+    # re-instantiated per-request.
+    app.state.feature_generator = FeatureGenerator()
+
+    # ExternalAgentService: manages outbound coordination with external
+    # agents/providers. Given an async lifecycle hook in case it needs to
+    # open connections or warm up clients on startup.
+    app.state.external_agent = ExternalAgentService()
+    if hasattr(app.state.external_agent, "startup"):
+        await app.state.external_agent.startup()
+
     yield  # --- application runs while suspended here ---
 
     logger.info("shutdown")
     # Example: dispose of the engine / close pooled connections cleanly.
     # await app.state.db_engine.dispose()
+
+    if hasattr(app.state.external_agent, "shutdown"):
+        await app.state.external_agent.shutdown()
 
 
 # -----------------------------------------------------------------------------
@@ -105,6 +129,33 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type"],
     max_age=600,
+)
+
+# -----------------------------------------------------------------------------
+# SentinelCore & ComplianceGuard middleware
+# -----------------------------------------------------------------------------
+# Middleware order matters: Starlette/FastAPI executes middleware in
+# reverse-of-registration order on the way in (last added runs first), so we
+# register ComplianceGuard last -> it runs first on the request path and can
+# short-circuit non-compliant requests before SentinelCore's monitoring/
+# self-healing logic (and downstream routes) ever see them.
+#
+# NOTE: this assumes SentinelCoreMiddleware / ComplianceGuardMiddleware
+# follow the standard Starlette BaseHTTPMiddleware-style constructor
+# (app, **options). Adjust the constructor kwargs below to match your
+# actual implementations in app/core/sentinel_core.py and
+# app/core/compliance_guard.py if they differ.
+
+app.add_middleware(
+    SentinelCoreMiddleware,
+    # e.g. enable automatic recovery from transient downstream failures
+    self_healing=True,
+)
+
+app.add_middleware(
+    ComplianceGuardMiddleware,
+    # e.g. which regimes to enforce; wire real config from settings
+    regimes=("gdpr", "ccpa"),
 )
 
 # -----------------------------------------------------------------------------
@@ -159,3 +210,4 @@ async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONR
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content={"detail": "An unexpected error occurred. Please try again later."},
     )
+
