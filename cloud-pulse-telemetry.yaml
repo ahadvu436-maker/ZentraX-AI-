@@ -1,0 +1,104 @@
+# cloud-pulse-telemetry.yaml
+# Real-time observability configuration for GCP workloads.
+# Compatible with OpenTelemetry Collector + Google Cloud Monitoring/Trace/Logging.
+
+telemetry:
+  service_name: zentrax-platform
+  environment: production
+
+  exporters:
+    metrics:
+      type: google-cloud-monitoring
+      project_id: "${GCP_PROJECT_ID}"
+      export_interval_seconds: 15
+    traces:
+      type: google-cloud-trace
+      project_id: "${GCP_PROJECT_ID}"
+      sampling_ratio: 0.1
+    logs:
+      type: google-cloud-logging
+      project_id: "${GCP_PROJECT_ID}"
+      structured: true
+
+  receivers:
+    prometheus:
+      scrape_configs:
+        - job_name: zentrax-services
+          scrape_interval: 15s
+          static_configs:
+            - targets: ["localhost:9090"]
+    otlp:
+      protocols:
+        grpc:
+          endpoint: "0.0.0.0:4317"
+        http:
+          endpoint: "0.0.0.0:4318"
+
+  processors:
+    batch:
+      timeout_seconds: 5
+      send_batch_size: 512
+    resource_detection:
+      detectors: [gcp, env]
+    tail_sampling:
+      policies:
+        - name: error-traces
+          type: status_code
+          status_codes: [ERROR]
+        - name: slow-traces
+          type: latency
+          threshold_ms: 500
+
+signals:
+  - name: request_rate
+    metric: custom.googleapis.com/zentrax/request_count
+    type: counter
+  - name: error_rate
+    metric: custom.googleapis.com/zentrax/error_count
+    type: counter
+  - name: latency_p50
+    metric: custom.googleapis.com/zentrax/latency_ms
+    type: distribution
+    percentile: 50
+  - name: latency_p99
+    metric: custom.googleapis.com/zentrax/latency_ms
+    type: distribution
+    percentile: 99
+  - name: deployment_frequency
+    metric: custom.googleapis.com/zentrax/deploys_total
+    type: counter
+  - name: canary_health
+    metric: custom.googleapis.com/zentrax/canary_error_rate
+    type: gauge
+
+alerting:
+  channels:
+    - type: pagerduty
+      severity: critical
+    - type: slack
+      severity: warning
+      webhook_secret_ref: secretmanager://zentrax-slack-webhook
+  rules:
+    - name: high-error-rate
+      condition: "error_rate / request_rate > 0.02"
+      window_minutes: 5
+      severity: critical
+    - name: latency-degradation
+      condition: "latency_p99 > 800"
+      window_minutes: 5
+      severity: warning
+    - name: canary-regression
+      condition: "canary_health > baseline_health * 1.5"
+      window_minutes: 10
+      severity: critical
+
+dashboards:
+  - name: zentrax-global-overview
+    panels: [request_rate, error_rate, latency_p50, latency_p99, deployment_frequency]
+  - name: zentrax-canary-health
+    panels: [canary_health, error_rate, latency_p99]
+
+retention:
+  metrics_days: 90
+  traces_days: 30
+  logs_days: 400
