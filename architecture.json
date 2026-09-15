@@ -1,0 +1,89 @@
+{
+  "$schema": "https://zentrax.ai/schemas/architecture-v1.json",
+  "metadata": {
+    "name": "zentrax-global-infrastructure",
+    "version": "1.0.0",
+    "owner": "platform-engineering",
+    "cloud_provider": "gcp",
+    "last_updated": "2026-09-15"
+  },
+  "regions": {
+    "primary": "us-central1",
+    "secondary": ["europe-west1", "asia-southeast1"],
+    "edge_pop_strategy": "google-global-external-https-lb",
+    "failover_policy": {
+      "type": "active-active",
+      "health_check_interval_seconds": 10,
+      "unhealthy_threshold": 3,
+      "automatic_failover": true
+    }
+  },
+  "network": {
+    "vpc_name": "zentrax-vpc",
+    "mode": "custom",
+    "subnets": [
+      { "name": "zentrax-subnet-us", "region": "us-central1", "cidr": "10.10.0.0/20" },
+      { "name": "zentrax-subnet-eu", "region": "europe-west1", "cidr": "10.20.0.0/20" },
+      { "name": "zentrax-subnet-asia", "region": "asia-southeast1", "cidr": "10.30.0.0/20" }
+    ],
+    "cdn": {
+      "enabled": true,
+      "backend": "cloud-cdn",
+      "cache_mode": "CACHE_ALL_STATIC",
+      "default_ttl_seconds": 3600
+    },
+    "load_balancing": {
+      "type": "global-external-https",
+      "ssl_policy": "MODERN_TLS_1_2_PLUS",
+      "armor_policy": "zentrax-cloud-armor-policy"
+    },
+    "private_service_connect": true
+  },
+  "compute": {
+    "orchestration": "gke-autopilot",
+    "clusters": [
+      { "name": "zentrax-gke-us", "region": "us-central1", "node_pools": ["general", "gpu-inference"] },
+      { "name": "zentrax-gke-eu", "region": "europe-west1", "node_pools": ["general"] },
+      { "name": "zentrax-gke-asia", "region": "asia-southeast1", "node_pools": ["general"] }
+    ],
+    "serverless": {
+      "cloud_run": {
+        "min_instances": 1,
+        "max_instances": 100,
+        "concurrency": 80,
+        "cpu": "2",
+        "memory": "2Gi"
+      }
+    },
+    "autoscaling": {
+      "cpu_target_utilization": 0.6,
+      "scale_down_delay_seconds": 300
+    }
+  },
+  "data": {
+    "primary_db": { "engine": "cloudsql-postgres", "tier": "db-custom-8-32768", "high_availability": true },
+    "cache": { "engine": "memorystore-redis", "tier": "STANDARD_HA" },
+    "object_storage": { "engine": "gcs", "storage_class": "STANDARD", "lifecycle_days_to_nearline": 30 },
+    "analytics_warehouse": "bigquery",
+    "message_bus": "pubsub"
+  },
+  "security": {
+    "identity": "workload-identity-federation",
+    "secrets_manager": "gcp-secret-manager",
+    "policy_reference": "security-policy.conf",
+    "zero_trust": true
+  },
+  "observability": {
+    "telemetry_reference": "cloud-pulse-telemetry.yaml",
+    "tracing": "cloud-trace",
+    "logging": "cloud-logging",
+    "slo_error_budget_percent": 0.1
+  },
+  "deployment": {
+    "ci_cd": "cloud-build",
+    "orchestrator_reference": "orchestrator.py",
+    "deploy_script_reference": "blitzkrieg-deploy.sh",
+    "strategy": "canary",
+    "rollback": "automatic-on-slo-breach"
+  }
+}
