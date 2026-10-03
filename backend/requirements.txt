@@ -23,3 +23,8 @@ scikit-learn
 sentence-transformers
 transformers
 torch
+psutil>=5.9.5
+requests>=2.31.0
+aiohttp>=3.8.5
+faiss-cpu>=1.7.4
+chromadb>=0.4.0
