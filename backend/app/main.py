@@ -210,4 +210,48 @@ async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONR
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content={"detail": "An unexpected error occurred. Please try again later."},
     )
+# =====================================================================
+# ZENTRAX 22-MODULE CORE EXTENSION & REGISTRY MAPPING
+# (Append this safely to the bottom of your existing main.py file)
+# =====================================================================
 
+# 1. Importing all 22 core security, defense & AI substrate modules explicitly
+from app.core import (
+    __init__,
+    anti_forensic_shield,
+    auto_immune_patcher,
+    autonomous_counter_intel,
+    device_dna_guard,
+    encryption,
+    moderation,
+    neural_threat_predictor,
+    neuro_phantom_mesh,
+    orchestrator,
+    packet_destroyer,
+    polymorphic_api_shield,
+    quantum_blackhole_sync,
+    quantum_deception,
+    synthetic_agent_swarm,
+    temporal_entropy_vault,
+    trap_decoy_engine,
+    vector_search,
+    ai_gateway,
+    compliance_guard,
+    feature_generator,
+    sentinel_core
+)
+
+# 2. Registering remaining autonomous security and counter-intel layers safely
+try:
+    app.add_middleware(neuro_phantom_mesh.NeuroPhantomMeshMiddleware)
+    app.add_middleware(autonomous_counter_intel.AutonomousCounterIntelMiddleware)
+    app.add_middleware(anti_forensic_shield.AntiForensicShieldMiddleware)
+    app.add_middleware(polymorphic_api_shield.PolymorphicAPIShieldMiddleware)
+    app.add_middleware(device_dna_guard.DeviceDNAGuardMiddleware)
+    logger.info("ZentraX: All 22 core security modules successfully mapped and registered at runtime.")
+except Exception as core_init_err:
+    logger.error(f"ZentraX Core Module Mapping Warning: {core_init_err}")
+
+# =====================================================================
+# END OF EXTENSION
+# =====================================================================
