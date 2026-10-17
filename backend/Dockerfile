@@ -36,6 +36,7 @@ RUN apt-get update \
 # builds until dependencies actually change — source edits alone won't
 # force a full pip reinstall.
 COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Application code, owned by the non-root user that will run it.
