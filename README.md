@@ -169,3 +169,24 @@ Contributions are welcome. Please open an issue to discuss significant changes b
 
 License
 Add your chosen license here (e.g. MIT, Apache 2.0) — none is specified yet.
+## Key Features
+
+- **Offline-first architecture**: The app works without connectivity. Requests and writes go into a local queue (`offline_queue.py`) and are replayed by `sync_manager.py` once the network is back, so nothing is lost during an outage.
+- **Security bridge** (`nexus_bridge.py`): All external communication passes through a single authenticated bridge that handles request validation and secure transport. It is registered as middleware at startup.
+- **Automatic reconnect** (`reconnect.py`): Dropped connections are detected and re-established automatically with exponential backoff. When the link recovers, queued work is synced.
+- **Kill switch** (`kill_switch.sh`): An emergency script that immediately severs external connectivity and halts sync, so you can isolate the system if something looks compromised.
+- **Fallback routing** (`fallback_router.py`): Routes requests to local handlers when upstream services are unreachable.
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| API | FastAPI (lifespan-managed startup/shutdown) |
+| Offline storage | Local persistent queue (`offline_queue.py`) |
+| Sync | Background sync manager (`sync_manager.py`) |
+| Security | Nexus bridge + security middleware |
+| Resilience | Auto-reconnect, fallback router, kill switch |
+
+### Usage
+
+    ./kill_switch.sh    # cut external connectivity immediately
