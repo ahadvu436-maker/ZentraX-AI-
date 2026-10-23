@@ -255,3 +255,42 @@ except Exception as core_init_err:
 # =====================================================================
 # END OF EXTENSION
 # =====================================================================
+from contextlib import asynccontextmanager
+from fastapi import FastAPI
+
+from nexus_bridge import NexusBridge, NexusSecurityMiddleware
+from fallback_router import fallback_router, FallbackMiddleware
+from offline_queue import OfflineQueue
+from sync_manager import SyncManager
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: order matters (queue -> bridge -> sync)
+    app.state.offline_queue = OfflineQueue()
+    await app.state.offline_queue.initialize()
+
+    app.state.nexus_bridge = NexusBridge()
+    await app.state.nexus_bridge.connect()
+
+    app.state.sync_manager = SyncManager(
+        queue=app.state.offline_queue,
+        bridge=app.state.nexus_bridge,
+    )
+    await app.state.sync_manager.start()   # background sync loop
+
+    yield
+
+    # Shutdown: reverse order
+    await app.state.sync_manager.stop()
+    await app.state.nexus_bridge.close()
+    await app.state.offline_queue.flush()
+
+
+app = FastAPI(lifespan=lifespan)
+
+# Middleware: last added runs first (outermost)
+app.add_middleware(FallbackMiddleware)
+app.add_middleware(NexusSecurityMiddleware)
+
+app.include_router(fallback_router)
