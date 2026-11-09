@@ -1,0 +1,9 @@
+type	date	name_or_source	category	amount	note
+income	YYYY-MM-DD	Subscriptions	Revenue	0.00	
+income	YYYY-MM-DD	Enterprise contracts	Revenue	0.00	
+income	YYYY-MM-DD	Grants / Investment	Funding	0.00	
+expense	YYYY-MM-DD	Cloud hosting	Infrastructure	0.00	
+expense	YYYY-MM-DD	Ad spend	Marketing	0.00	
+expense	YYYY-MM-DD	Salaries / contractors	Payroll	0.00	
+expense	YYYY-MM-DD	Legal & accounting	Legal & Compliance	0.00	
+expense	YYYY-MM-DD	SaaS subscriptions	Software & Tools	0.00
