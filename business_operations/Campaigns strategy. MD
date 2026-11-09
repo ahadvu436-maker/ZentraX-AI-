@@ -1,0 +1,196 @@
+# ZentraX-AI — Marketing Campaigns & Growth Strategy
+
+> **Owner:** Marketing Team | **Last Updated:** YYYY-MM-DD | **Review Cycle:** Quarterly
+> Fill every `[ ]` and `<placeholder>`. Delete sections that do not apply.
+
+---
+
+## 1. Brand Foundation
+
+| Element | Definition |
+|---|---|
+| **Mission** | <One sentence: why ZentraX-AI exists> |
+| **Vision** | <Where the company is in 3–5 years> |
+| **Core Values** | <e.g., Reliability, Transparency, Human-centered AI> |
+| **Brand Promise** | <What users can always count on, e.g., "AI that works even offline"> |
+| **Tagline** | <Short, memorable> |
+
+### 1.1 Brand Voice & Tone
+- **Personality:** <e.g., Confident, clear, approachable>
+- **We say:** <Plain language, concrete benefits>
+- **We avoid:** <Jargon, hype, unverifiable claims>
+
+### 1.2 Visual Identity Checklist
+- [ ] Logo (primary, monochrome, icon)
+- [ ] Color palette & typography
+- [ ] Product screenshots / demo assets
+- [ ] Brand guideline document link: <URL>
+
+### 1.3 Positioning Statement
+> For **<target user>** who **<need>**, ZentraX-AI is a **<category>** that **<key benefit>**. Unlike **<alternatives>**, we **<differentiator>**.
+
+**Key differentiators (examples to validate):**
+- Resilient hybrid online/offline operation
+- Autonomous, continuously improving engineering
+- <Add more>
+
+---
+
+## 2. Target Audience & Market
+
+### 2.1 Ideal Customer Profiles (ICPs)
+
+| Segment | Who | Pain Points | Buying Trigger | Channel Preference |
+|---|---|---|---|---|
+| ICP 1 | <Developers / SMBs / Enterprises> | <...> | <...> | <...> |
+| ICP 2 | | | | |
+| ICP 3 | | | | |
+
+### 2.2 Market Sizing
+| Metric | Estimate | Source |
+|---|---|---|
+| TAM | $<...> | <report/link> |
+| SAM | $<...> | |
+| SOM (12 months) | $<...> | |
+
+### 2.3 Competitive Landscape
+
+| Competitor | Strengths | Weaknesses | Our Edge |
+|---|---|---|---|
+| <Name> | | | |
+| <Name> | | | |
+
+---
+
+## 3. Market Reach Strategy
+
+### 3.1 Channel Plan
+
+| Channel | Goal | Audience | Content/Tactic | Owner | Monthly Budget | Primary KPI |
+|---|---|---|---|---|---|---|
+| SEO / Blog | Organic traffic | <ICP> | Technical + thought-leadership posts | | | Organic sessions |
+| Social (LinkedIn/X) | Awareness | | Product updates, founder POV | | | Followers, engagement |
+| Developer Community (GitHub, Discord, Reddit) | Adoption | Developers | Open demos, AMAs | | | Active members |
+| Paid Search / Social | Acquisition | | Targeted ads | | | CAC |
+| Email / Newsletter | Nurture | | Onboarding + product news | | | Open/click rate |
+| Partnerships / Integrations | Reach | | Co-marketing | | | Referral signups |
+| PR / Media | Credibility | | Launch stories, case studies | | | Earned mentions |
+| Events / Webinars | Leads | | Live demos | | | Registrations |
+
+### 3.2 Geographic & Language Expansion
+- **Phase 1 markets:** <...>
+- **Phase 2 markets:** <...>
+- **Localization needs:** <languages, currencies, regulations>
+
+---
+
+## 4. User Acquisition Funnel
+
+```
+Awareness  →  Interest  →  Signup  →  Activation  →  Retention  →  Referral/Revenue
+```
+
+| Stage | Objective | Tactics | Metric | Target |
+|---|---|---|---|---|
+| Awareness | Be discovered | Content, ads, PR | Impressions, reach | |
+| Interest | Drive site visits | Landing pages, demos | Visit → lead rate | |
+| Signup | Capture users | Free tier, waitlist | Conversion rate | |
+| Activation | First value moment | Onboarding flow, tutorials | % reaching "aha" | |
+| Retention | Keep users | Lifecycle emails, in-app tips | D7 / D30 retention | |
+| Referral | Viral growth | Referral program | Viral coefficient | |
+
+**Define "Activation" for ZentraX-AI:** <e.g., user completes first successful request>
+
+---
+
+## 5. Growth Strategies
+
+### 5.1 Growth Loops
+- **Product-led loop:** <User creates value → shares output → new user signs up>
+- **Content loop:** <Docs/blog → search traffic → signups → user-generated content>
+- **Community loop:** <Contributors → showcases → new members>
+
+### 5.2 Experiment Backlog (ICE Scoring)
+
+| # | Hypothesis | Impact (1–10) | Confidence (1–10) | Ease (1–10) | ICE Score | Status |
+|---|---|---|---|---|---|---|
+| 1 | <If we ___, then ___ because ___> | | | | | Backlog |
+| 2 | | | | | | |
+
+### 5.3 Pricing & Packaging Messaging
+- Free tier hook: <...>
+- Paid upgrade triggers: <...>
+- Enterprise messaging: <security, uptime, compliance>
+
+---
+
+## 6. Campaign Plan Template
+
+Duplicate this block for each campaign.
+
+### Campaign: `<Name>`
+| Field | Detail |
+|---|---|
+| **Objective** | <SMART goal> |
+| **Target Audience** | <ICP> |
+| **Key Message** | <...> |
+| **Channels** | <...> |
+| **Start / End** | YYYY-MM-DD → YYYY-MM-DD |
+| **Budget** | $<...> |
+| **Owner** | <Name> |
+| **Success KPIs** | <...> |
+| **Assets Needed** | <Landing page, creatives, copy> |
+
+**Timeline**
+- [ ] Brief approved
+- [ ] Assets produced
+- [ ] Compliance/legal review (see `../finance/compliance_ledger.md`)
+- [ ] Launch
+- [ ] Mid-campaign review
+- [ ] Post-mortem & learnings logged
+
+---
+
+## 7. AI-Specific Messaging Guardrails
+
+- [ ] Do not overstate capabilities; every claim must be verifiable.
+- [ ] Be transparent about AI involvement in user-facing content.
+- [ ] Clearly communicate data privacy and offline/local-data handling.
+- [ ] Avoid comparisons that cannot be backed by benchmarks.
+- [ ] Route sensitive claims through legal review.
+
+---
+
+## 8. KPIs & Reporting
+
+| KPI | Definition | Target | Current | Source |
+|---|---|---|---|---|
+| New Users | Signups per period | | | `user_engagement.py` |
+| Activation Rate | Activated / Signups | | | `user_engagement.py` |
+| DAU / MAU | Daily vs. monthly active | | | `user_engagement.py` |
+| Retention (D7/D30) | Returning users | | | `user_engagement.py` |
+| CAC | Marketing spend / new users | | | Finance sheet |
+| LTV:CAC | Lifetime value ÷ CAC | ≥ 3:1 | | Finance sheet |
+| NPS | Net Promoter Score | | | Survey |
+
+**Reporting cadence:** Weekly snapshot · Monthly deep-dive · Quarterly strategy review.
+
+---
+
+## 9. 90-Day Roadmap
+
+| Phase | Weeks | Focus | Deliverables |
+|---|---|---|---|
+| Foundation | 1–4 | Brand, ICPs, tracking set up | Guidelines, analytics live |
+| Launch | 5–8 | First campaigns, community | 2 campaigns, content cadence |
+| Optimize | 9–12 | Experiments, scale winners | Experiment report, budget reallocation |
+
+---
+
+## 10. Risks & Mitigations
+
+| Risk | Likelihood | Impact | Mitigation |
+|---|---|---|---|
+| Low activation | | | Improve onboarding |
+| Negative AI sentiment | | | Transparency messaging |
+| Channel cost inflation | | | Diversify channels | 
