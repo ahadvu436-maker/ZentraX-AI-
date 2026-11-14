@@ -1,12 +1,12 @@
-"""Baseline interface for key management."""
-from dataclasses import dataclass
-from typing import Any, Mapping
-
-@dataclass(frozen=True)
-class Result:
-    status: str
-    details: Mapping[str, Any]
-
-class KeyManagement:
-    def inspect(self, payload: Mapping[str, Any] | None = None) -> Result:
-        return Result("baseline_ready", {"module": "key_management", "input_keys": sorted((payload or {}).keys())})
+from datetime import datetime, timezone
+class KeyManagementService:
+    """Safe adapter contract for key management; add a domain algorithm and tests."""
+    def __init__(self, enabled=True): self.enabled=enabled
+    def health(self):
+        return {"module":"key_management","enabled":self.enabled,"status":"ready" if self.enabled else "disabled"}
+    def execute(self, payload=None):
+        if not self.enabled: return {"ok":False,"error":"module_disabled"}
+        if payload is None: payload={}
+        if not isinstance(payload,dict): return {"ok":False,"error":"payload_must_be_object"}
+        return {"ok":True,"module":"key_management","accepted_fields":sorted(payload),
+                "status":"accepted_for_processing","timestamp":datetime.now(timezone.utc).isoformat()}
