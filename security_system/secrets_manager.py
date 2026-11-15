@@ -1,12 +1,7 @@
-from datetime import datetime, timezone
-class SecretsManagerService:
-    """Safe adapter contract for secrets manager; add a domain algorithm and tests."""
-    def __init__(self, enabled=True): self.enabled=enabled
-    def health(self):
-        return {"module":"secrets_manager","enabled":self.enabled,"status":"ready" if self.enabled else "disabled"}
-    def execute(self, payload=None):
-        if not self.enabled: return {"ok":False,"error":"module_disabled"}
-        if payload is None: payload={}
-        if not isinstance(payload,dict): return {"ok":False,"error":"payload_must_be_object"}
-        return {"ok":True,"module":"secrets_manager","accepted_fields":sorted(payload),
-                "status":"accepted_for_processing","timestamp":datetime.now(timezone.utc).isoformat()}
+import os
+class EnvironmentSecrets:
+    """Reads secrets from environment only; never logs secret values."""
+    def get(self, name, required=True):
+        value = os.environ.get(name)
+        if required and not value: raise RuntimeError(f"required secret is not configured: {name}")
+        return value

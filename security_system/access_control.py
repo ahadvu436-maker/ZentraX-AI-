@@ -1,12 +1,10 @@
-from datetime import datetime, timezone
-class AccessControlService:
-    """Safe adapter contract for access control; add a domain algorithm and tests."""
-    def __init__(self, enabled=True): self.enabled=enabled
-    def health(self):
-        return {"module":"access_control","enabled":self.enabled,"status":"ready" if self.enabled else "disabled"}
-    def execute(self, payload=None):
-        if not self.enabled: return {"ok":False,"error":"module_disabled"}
-        if payload is None: payload={}
-        if not isinstance(payload,dict): return {"ok":False,"error":"payload_must_be_object"}
-        return {"ok":True,"module":"access_control","accepted_fields":sorted(payload),
-                "status":"accepted_for_processing","timestamp":datetime.now(timezone.utc).isoformat()}
+class AccessController:
+    def __init__(self, rules=None):
+        self.rules = list(rules or [])
+    def add_rule(self, subject, resource_prefix, actions):
+        self.rules.append((subject, resource_prefix, frozenset(actions)))
+    def require(self, principal, resource, action):
+        for subject, prefix, actions in self.rules:
+            if subject == principal.subject and resource.startswith(prefix) and action in actions:
+                return True
+        raise PermissionError("resource access denied")

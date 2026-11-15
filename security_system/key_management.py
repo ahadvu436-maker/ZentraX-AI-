@@ -1,12 +1,19 @@
-from datetime import datetime, timezone
-class KeyManagementService:
-    """Safe adapter contract for key management; add a domain algorithm and tests."""
-    def __init__(self, enabled=True): self.enabled=enabled
-    def health(self):
-        return {"module":"key_management","enabled":self.enabled,"status":"ready" if self.enabled else "disabled"}
-    def execute(self, payload=None):
-        if not self.enabled: return {"ok":False,"error":"module_disabled"}
-        if payload is None: payload={}
-        if not isinstance(payload,dict): return {"ok":False,"error":"payload_must_be_object"}
-        return {"ok":True,"module":"key_management","accepted_fields":sorted(payload),
-                "status":"accepted_for_processing","timestamp":datetime.now(timezone.utc).isoformat()}
+import secrets, threading, time
+class InMemoryKeyStore:
+    """Development-only key store. Production deployments must use KMS/HSM."""
+    def __init__(self): self._keys, self._lock = {}, threading.RLock()
+    def create(self, key_id=None, length=32):
+        key_id = key_id or secrets.token_hex(12)
+        with self._lock:
+            if key_id in self._keys: raise KeyError("key id already exists")
+            self._keys[key_id] = {"key": secrets.token_bytes(length), "created": time.time(), "active": True}
+        return key_id
+    def get(self, key_id):
+        with self._lock:
+            item = self._keys.get(key_id)
+            if not item or not item["active"]: raise KeyError("key unavailable")
+            return bytes(item["key"])
+    def revoke(self, key_id):
+        with self._lock:
+            if key_id not in self._keys: raise KeyError(key_id)
+            self._keys[key_id]["active"] = False
