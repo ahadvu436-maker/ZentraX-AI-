@@ -1,0 +1,20 @@
+{
+  "project": "ZentraX AI",
+  "document_set": "Technical Documentation & Engineering Specification",
+  "status": "Architecture baseline; reconcile against actual source code",
+  "files": [
+    "README.md",
+    "api_reference.md",
+    "architecture.md",
+    "deployment_guide.md",
+    "developer_guide.md",
+    "diagrams/agent_workflow.md",
+    "diagrams/data_flow.md",
+    "diagrams/system_architecture.md",
+    "installation.md",
+    "roadmap.md",
+    "security_guide.md",
+    "system_design.md"
+  ],
+  "important_note": "Proposed endpoints, runtime components, and architecture must be verified against the actual repository before being described as implemented."
+}
