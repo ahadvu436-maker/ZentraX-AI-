@@ -1,0 +1,9 @@
+[
+  "integration/test_app_factory.py::test_configured_app_factory_returns_application",
+  "integration/test_imports.py::test_configured_module_imports",
+  "integration/test_imports.py::test_import_targets_are_unique",
+  "performance/test_smoke_timing.py::test_configured_target_finishes_within_smoke_budget",
+  "regression/test_test_suite_health.py::test_project_root_fixture_is_available",
+  "regression/test_test_suite_health.py::test_pytest_markers_are_registered",
+  "system/test_application_contract.py::test_app_exposes_expected_health_contract"
+]

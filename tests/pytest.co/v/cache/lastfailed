@@ -1,0 +1,6 @@
+{
+  "security/test_static_security.py": true,
+  "system/test_health_endpoint.py": true,
+  "unit/test_package_layout.py": true,
+  "unit/test_python_syntax.py": true
+}
