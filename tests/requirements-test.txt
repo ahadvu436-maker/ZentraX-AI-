@@ -1,4 +1,0 @@
-# Python >= 3.11. The Configuration package needs these too.
-pydantic>=2.9,<3
-python-dotenv>=1.0
-pytest>=8
