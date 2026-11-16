@@ -1,1 +1,106 @@
+# GitHub Actions workflow. Move this file to:
+# .github/workflows/pipeline.yml
+name: ZentraX CI and Container Build
 
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  PYTHON_VERSION: "3.12"
+  REGISTRY: ghcr.io
+
+jobs:
+  validate:
+    name: Validate Python and deployment files
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f backend/requirements.txt ]; then
+            pip install -r backend/requirements.txt
+          fi
+          pip install pytest PyYAML
+
+      - name: Compile backend
+        run: python -m compileall -q backend
+
+      - name: Run tests when present
+        run: |
+          if [ -d backend/tests ] || [ -d tests ]; then
+            pytest -q
+          else
+            echo "No test directory found; test execution skipped."
+          fi
+
+      - name: Validate deployment YAML
+        run: |
+          python - <<'PY'
+          import pathlib, yaml
+          for path in pathlib.Path("deployment").rglob("*.yaml"):
+              list(yaml.safe_load_all(path.read_text()))
+              print(f"VALID YAML: {path}")
+          PY
+        continue-on-error: true
+
+  build-api:
+    name: Build API image
+    needs: validate
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push API
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: deployment/docker/Dockerfile.api
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/zentrax-api:${{ github.sha }}
+
+  build-worker:
+    name: Build worker image
+    needs: validate
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push worker
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: deployment/docker/Dockerfile.worker
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/zentrax-worker:${{ github.sha }}
