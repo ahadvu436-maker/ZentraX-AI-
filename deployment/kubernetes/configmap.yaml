@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: zentrax-config
+  namespace: zentrax
+data:
+  APP_MODULE: "main:app"
+  APP_HOST: "0.0.0.0"
+  PORT: "8000"
+  WEB_CONCURRENCY: "2"
+  CELERY_APP: "worker:celery_app"
+  CELERY_CONCURRENCY: "2"
+  CELERY_LOG_LEVEL: "INFO"
+  # Use the Kubernetes Service name for Redis/PostgreSQL.
+  REDIS_URL: "redis://redis:6379/0"
+  DATABASE_URL: "postgresql+psycopg://zentrax:REPLACE_ME@postgres:5432/zentrax"
+  LOG_LEVEL: "INFO"
+  ENVIRONMENT: "production"
