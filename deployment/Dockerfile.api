@@ -1,0 +1,38 @@
+# Build context: repository root
+# Expected layout: backend/requirements.txt and backend/main.py
+FROM python:3.12-slim AS runtime
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      curl ca-certificates \
+    && rm -rf /var/lib/apt/lists/* \
+    && groupadd --system app && useradd --system --gid app --home-dir /app app
+
+# Change this build argument if your requirements file is elsewhere.
+ARG REQUIREMENTS_FILE=backend/requirements.txt
+COPY ${REQUIREMENTS_FILE} /tmp/requirements.txt
+RUN pip install --upgrade pip setuptools wheel \
+    && pip install -r /tmp/requirements.txt
+
+COPY backend/ /app/backend/
+WORKDIR /app/backend
+
+# Use main:app only if backend/main.py exports a FastAPI object named "app".
+ENV APP_MODULE=main:app \
+    APP_HOST=0.0.0.0 \
+    PORT=8000 \
+    WEB_CONCURRENCY=2
+
+EXPOSE 8000
+USER app
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+  CMD curl --fail --silent http://127.0.0.1:${PORT}/health || exit 1
+
+CMD ["sh", "-c", "exec uvicorn ${APP_MODULE} --host ${APP_HOST} --port ${PORT} --workers ${WEB_CONCURRENCY}"]

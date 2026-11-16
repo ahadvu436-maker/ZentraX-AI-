@@ -1,0 +1,33 @@
+# Build context: repository root
+# Expected layout: backend/requirements.txt and backend/ containing Celery app.
+FROM python:3.12-slim AS runtime
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      curl ca-certificates \
+    && rm -rf /var/lib/apt/lists/* \
+    && groupadd --system app && useradd --system --gid app --home-dir /app app
+
+ARG REQUIREMENTS_FILE=backend/requirements.txt
+COPY ${REQUIREMENTS_FILE} /tmp/requirements.txt
+RUN pip install --upgrade pip setuptools wheel \
+    && pip install -r /tmp/requirements.txt
+
+COPY backend/ /app/backend/
+WORKDIR /app/backend
+
+# Set CELERY_APP to the actual import path, e.g. "worker.celery_app:app".
+ENV CELERY_APP=worker:celery_app \
+    CELERY_CONCURRENCY=2 \
+    CELERY_LOG_LEVEL=INFO
+
+USER app
+
+# Celery worker process; Redis URL is supplied at runtime through environment.
+CMD ["sh", "-c", "exec celery -A ${CELERY_APP} worker --loglevel=${CELERY_LOG_LEVEL} --concurrency=${CELERY_CONCURRENCY}"]
