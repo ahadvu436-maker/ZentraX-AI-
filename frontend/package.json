@@ -1,3 +1,4 @@
+
 {
   "name": "zentrax-frontend",
   "version": "1.0.0",
@@ -13,5 +14,3 @@
     "react-dom": "^18.3.0"
   }
 }
-cd frontend
-npm install lucide-react
